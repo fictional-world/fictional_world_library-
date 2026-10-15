@@ -1,4 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import {
+  Search,
+  Home,
+  Library,
+  Bell,
+  User,
+  Menu,
+  Wallet,
+  Settings,
+  Headphones,
+  BookOpen,
+  Moon,
+  Sun,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  CheckCircle,
+  LogIn,
+  X,
+  Plus,
+} from "lucide-react";
+
+import { supabase } from "./supabase.js";
 import "./index.css";
 
 const genres = [
@@ -13,137 +36,245 @@ const genres = [
   "Christian Romance",
 ];
 
-const books = [
+const sampleBooks = [
   {
-    id: 1,
+    id: "sample-1",
     title: "The Alpha's Forbidden Luna",
-    author: "Author Divine",
+    author: "Divine",
     genre: "Werewolf",
+    cover: "/logo.png",
+    synopsis:
+      "She was the one woman he could never claim. But fate had other plans for the Alpha and the woman destined to change his world.",
     status: "Ongoing",
     length: "Long",
-    chapters: 42,
-    cover: "🐺",
-    color: "cover-purple",
-    description:
-      "She was forbidden to every Alpha in the kingdom. Unfortunately, fate had other plans. When an ancient bond awakens, she discovers that her existence could destroy the very world she was born into.",
+    chapters: 45,
+    tags: ["Werewolf", "Romance", "Alpha"],
   },
   {
-    id: 2,
+    id: "sample-2",
     title: "Married to the Mafia King",
-    author: "Author Heiress",
+    author: "Heiress",
     genre: "Mafia",
-    status: "Completed",
+    cover: "/logo.png",
+    synopsis:
+      "A marriage she never wanted binds her to a dangerous man. In his world, love can be more dangerous than betrayal.",
+    status: "Ongoing",
     length: "Long",
-    chapters: 48,
-    cover: "🖤",
-    color: "cover-black",
-    description:
-      "One contract. One dangerous man. One marriage she never wanted. But the deeper she enters his world, the harder it becomes to distinguish between a prison and a home.",
+    chapters: 38,
+    tags: ["Mafia", "Romance", "Drama"],
   },
   {
-    id: 3,
+    id: "sample-3",
     title: "The Billionaire's Secret",
-    author: "Author Lena",
+    author: "Rose",
     genre: "Billionaire Drama",
-    status: "Ongoing",
-    length: "Short",
-    chapters: 18,
-    cover: "💎",
-    color: "cover-blue",
-    description:
-      "A chance encounter leads to a secret arrangement with the city's most powerful billionaire. Neither expects the truth to change everything.",
-  },
-  {
-    id: 4,
-    title: "Bound by Eternal Night",
-    author: "Author Divine",
-    genre: "Vampire",
-    status: "Completed",
-    length: "Long",
-    chapters: 36,
-    cover: "🌙",
-    color: "cover-red",
-    description:
-      "For centuries, he has lived without a heart. Then a mysterious stranger walks into his life carrying the one secret that could end his immortality.",
-  },
-  {
-    id: 5,
-    title: "The Light After Forever",
-    author: "Author Lena",
-    genre: "Christian Romance",
-    status: "Ongoing",
-    length: "Short",
-    chapters: 15,
-    cover: "🕊️",
-    color: "cover-gold",
-    description:
-      "After heartbreak changes everything she believes about love, she begins a journey of faith, forgiveness, and unexpected second chances.",
-  },
-  {
-    id: 6,
-    title: "Shadows of Another Life",
-    author: "Author Heiress",
-    genre: "Paranormal",
-    status: "Ongoing",
-    length: "Long",
-    chapters: 31,
-    cover: "🔮",
-    color: "cover-teal",
-    description:
-      "She sees things nobody else can see. When the shadows begin speaking her name, she must uncover the truth behind a forgotten world.",
-  },
-  {
-    id: 7,
-    title: "Love Without Labels",
-    author: "Author Lena",
-    genre: "LGBTQ",
+    cover: "/logo.png",
+    synopsis:
+      "One unexpected meeting changes everything when a powerful billionaire discovers the woman he underestimated holds his greatest secret.",
     status: "Completed",
     length: "Short",
     chapters: 20,
-    cover: "💜",
-    color: "cover-pink",
-    description:
-      "Two people from different worlds discover a connection neither expected. Their journey challenges their fears and changes what they thought love could be.",
+    tags: ["Billionaire", "Romance", "Drama"],
   },
   {
-    id: 8,
-    title: "The Billionaire's Arrangement",
-    author: "Author Divine",
-    genre: "Billionaire Drama",
+    id: "sample-4",
+    title: "Bound by Eternal Night",
+    author: "Luna",
+    genre: "Vampire",
+    cover: "/logo.png",
+    synopsis:
+      "An ancient secret connects a mortal woman to a vampire who has spent centuries avoiding the one thing he cannot control: love.",
     status: "Ongoing",
     length: "Long",
-    chapters: 27,
-    cover: "🥀",
-    color: "cover-purple",
-    description:
-      "A simple agreement was supposed to solve all her problems. But living under the same roof as a man who trusts nobody makes keeping their distance impossible.",
+    chapters: 52,
+    tags: ["Vampire", "Paranormal", "Romance"],
   },
   {
-    id: 9,
-    title: "A Dangerous Desire",
-    author: "Author Heiress",
-    genre: "Erotica",
+    id: "sample-5",
+    title: "The Light After Forever",
+    author: "Grace",
+    genre: "Christian Romance",
+    cover: "/logo.png",
+    synopsis:
+      "After heartbreak takes away everything she believed in, a new beginning challenges her to rediscover faith, forgiveness, and love.",
     status: "Completed",
     length: "Short",
+    chapters: 18,
+    tags: ["Christian Romance", "Faith", "Love"],
+  },
+  {
+    id: "sample-6",
+    title: "Shadows of Another Life",
+    author: "Avery",
+    genre: "Paranormal",
+    cover: "/logo.png",
+    synopsis:
+      "Strange dreams and unexplained memories lead a young woman toward a truth that could change her understanding of reality.",
+    status: "Ongoing",
+    length: "Long",
+    chapters: 41,
+    tags: ["Paranormal", "Mystery", "Romance"],
+  },
+  {
+    id: "sample-7",
+    title: "Love Without Labels",
+    author: "Jordan",
+    genre: "LGBTQ",
+    cover: "/logo.png",
+    synopsis:
+      "Two people from different worlds find a connection that challenges their fears and everything they thought they knew about love.",
+    status: "Completed",
+    length: "Short",
+    chapters: 22,
+    tags: ["LGBTQ", "Romance", "Drama"],
+  },
+  {
+    id: "sample-8",
+    title: "The Billionaire's Arrangement",
+    author: "Victoria",
+    genre: "Billionaire Drama",
+    cover: "/logo.png",
+    synopsis:
+      "A business arrangement is supposed to be simple. But living under the same roof makes keeping their hearts out of the deal impossible.",
+    status: "Ongoing",
+    length: "Long",
+    chapters: 35,
+    tags: ["Billionaire", "Romance", "Drama"],
+  },
+  {
+    id: "sample-9",
+    title: "A Dangerous Desire",
+    author: "Scarlett",
+    genre: "Mafia",
+    cover: "/logo.png",
+    synopsis:
+      "Drawn into a world of power and dangerous secrets, she must decide whether the man she desires is worth the risk.",
+    status: "Ongoing",
+    length: "Short",
     chapters: 16,
-    cover: "🌹",
-    color: "cover-red",
-    description:
-      "An intense attraction leads to unexpected choices, complicated feelings, and a secret neither of them can afford to reveal.",
+    tags: ["Mafia", "Romance", "Suspense"],
   },
 ];
 
-function App() {
-  const [activeGenre, setActiveGenre] = useState("All");
-  const [activePage, setActivePage] = useState("Home");
+function formatBook(book) {
+  return {
+    id: book.id,
+    title: book.title || "Untitled Book",
+    author: book.author_name || book.author || "Unknown Author",
+    genre: book.genre || "Romance",
+    cover: book.cover_url || book.cover || "/logo.png",
+    synopsis: book.synopsis || "Discover this story on Fictional World Library.",
+    status:
+      String(book.status || "Ongoing").toLowerCase() === "completed"
+        ? "Completed"
+        : "Ongoing",
+    length:
+      String(book.length || "long").toLowerCase() === "short"
+        ? "Short"
+        : "Long",
+    chapters: Number(book.chapter_count || book.chapters || 0),
+    tags: Array.isArray(book.tags)
+      ? book.tags
+      : typeof book.tags === "string"
+        ? book.tags.split(",").map((tag) => tag.trim()).filter(Boolean)
+        : [],
+  };
+}
+
+function BookCard({ book, onClick }) {
+  return (
+    <button className="book-card" onClick={() => onClick(book)}>
+      <div className="book-cover">
+        <img
+          src={book.cover}
+          alt={book.title}
+          onError={(event) => {
+            event.currentTarget.src = "/logo.png";
+          }}
+        />
+
+        <span className="book-status">{book.status}</span>
+      </div>
+
+      <div className="book-info">
+        <h3>{book.title}</h3>
+        <p className="book-author">By {book.author}</p>
+
+        <div className="book-meta">
+          <span>{book.genre}</span>
+          <span>{book.length}</span>
+        </div>
+      </div>
+    </button>
+  );
+}
+
+function NavButton({ icon: Icon, label, active, onClick }) {
+  return (
+    <button
+      className={`nav-button ${active ? "active" : ""}`}
+      onClick={onClick}
+      aria-label={label}
+    >
+      <Icon size={21} />
+      <span>{label}</span>
+    </button>
+  );
+    }export default function App() {
+  const [books, setBooks] = useState(sampleBooks);
+  const [selectedGenre, setSelectedGenre] = useState("All");
   const [search, setSearch] = useState("");
+  const [activePage, setActivePage] = useState("Home");
   const [selectedBook, setSelectedBook] = useState(null);
   const [darkMode, setDarkMode] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [loadingBooks, setLoadingBooks] = useState(true);
+  const [notice, setNotice] = useState("");
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadBooks() {
+      try {
+        const { data, error } = await supabase
+          .from("books")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (error) {
+          console.error("Could not load books:", error.message);
+          return;
+        }
+
+        if (active && data && data.length > 0) {
+          setBooks(data.map(formatBook));
+        }
+      } catch (error) {
+        console.error("Book loading error:", error);
+      } finally {
+        if (active) {
+          setLoadingBooks(false);
+        }
+      }
+    }
+
+    loadBooks();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute(
+      "data-theme",
+      darkMode ? "dark" : "light"
+    );
+  }, [darkMode]);
 
   const filteredBooks = books.filter((book) => {
     const matchesGenre =
-      activeGenre === "All" || book.genre === activeGenre;
+      selectedGenre === "All" || book.genre === selectedGenre;
 
     const matchesSearch =
       book.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -161,411 +292,488 @@ function App() {
     (book) => book.status === "Completed"
   );
 
-  function changePage(page) {
+  function showNotice(message) {
+    setNotice(message);
+    window.setTimeout(() => setNotice(""), 3000);
+  }
+
+  function openPage(page) {
     setActivePage(page);
     setSelectedBook(null);
     setMenuOpen(false);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function openGenre(genre) {
-    setActiveGenre(genre);
-    setActivePage("Home");
-    setSelectedBook(null);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  function openBook(book) {
+    setSelectedBook(book);
   }
 
-  return (
-    <div className={darkMode ? "app dark" : "app light"}>
-      <header className="topbar">
-        <button
-          className="brand"
-          onClick={() => changePage("Home")}
-          aria-label="Fictional World home"
-        >
-          <img
-            src="/logo.png"
-            alt="Fictional World Library"
-            className="brand-logo"
-          />
-          <span className="brand-name">
-            FICTIONAL <span>WORLD</span>
-          </span>
-        </button>
+  function addToLibrary(book) {
+    const saved = JSON.parse(
+      localStorage.getItem("fictionalWorldLibrary") || "[]"
+    );
 
-        <div className="desktop-search">
-          <span>⌕</span>
-          <input
-            type="search"
-            placeholder="Search stories or authors..."
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
+    const alreadySaved = saved.some(
+      (item) => String(item.id) === String(book.id)
+    );
+
+    if (alreadySaved) {
+      showNotice("This book is already in your library.");
+      return;
+    }
+
+    saved.push(book);
+    localStorage.setItem("fictionalWorldLibrary", JSON.stringify(saved));
+    showNotice("Book added to your library.");
+  }
+
+  const savedBooks = JSON.parse(
+    localStorage.getItem("fictionalWorldLibrary") || "[]"
+  );
+
+  function renderBookGrid(bookList) {
+    if (bookList.length === 0) {
+      return (
+        <div className="empty-state">
+          <BookOpen size={35} />
+          <h3>No books found</h3>
+          <p>Try another genre or search for a different title.</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="book-grid">
+        {bookList.map((book) => (
+          <BookCard
+            key={book.id}
+            book={book}
+            onClick={openBook}
           />
+        ))}
+      </div>
+    );
+  }
+
+  function renderBookSection(title, bookList) {
+    if (bookList.length === 0) return null;
+
+    return (
+      <section className="content-section">
+        <div className="section-heading">
+          <h2>{title}</h2>
+          <button
+            className="text-button"
+            onClick={() => showNotice("More books will appear here as they are added.")}
+          >
+            Explore <ChevronRight size={16} />
+          </button>
         </div>
 
-        <div className="header-actions">
-          <button
-            className="icon-button"
-            onClick={() => setDarkMode(!darkMode)}
-            title="Toggle appearance"
-            aria-label="Toggle appearance"
-          >
-            {darkMode ? "☀" : "☾"}
-          </button>
+        {renderBookGrid(bookList)}
+      </section>
+    );
+  }
 
-          <button
-            className="login-button"
-            onClick={() => changePage("Profile")}
-          >
-            Sign in
-          </button>
-        </div>
-      </header>
-
-      <main className="main-content">
-        {activePage === "Home" && !selectedBook && (
-          <>
-            <section className="hero">
-              <div className="hero-content">
-                <span className="eyebrow">
-                  YOUR NEXT OBSESSION STARTS HERE
-                </span>
-
-                <h1>
-                  Every world
-                  <br />
-                  has a <span>story.</span>
-                </h1>
-
-                <p>
-                  Discover unforgettable characters, impossible love,
-                  dangerous secrets, and endless adventures.
-                </p>
-
-                <button
-                  className="primary-button"
-                  onClick={() => {
-                    document
-                      .getElementById("discover")
-                      ?.scrollIntoView({ behavior: "smooth" });
-                  }}
-                >
-                  Explore Stories <span>→</span>
-                </button>
-
-                <div className="hero-stats">
-                  <div>
-                    <strong>8</strong>
-                    <span>Genres</span>
-                  </div>
-                  <div>
-                    <strong>∞</strong>
-                    <span>Possibilities</span>
-                  </div>
-                  <div>
-                    <strong>24/7</strong>
-                    <span>Read anytime</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="hero-art" aria-hidden="true">
-                <div className="moon">☾</div>
-                <div className="floating-book">✦</div>
-                <div className="hero-orbit orbit-one"></div>
-                <div className="hero-orbit orbit-two"></div>
-                <div className="hero-caption">
-                  <span>TURN THE PAGE</span>
-                  <strong>Enter another world.</strong>
-                </div>
-              </div>
-            </section>
-
-            <section className="genre-section" id="discover">
-              <div className="section-heading">
-                <div>
-                  <span className="eyebrow">FIND YOUR NEXT READ</span>
-                  <h2>Explore genres</h2>
-                </div>
-              </div>
-
-              <div className="genre-list">
-                {genres.map((genre) => (
-                  <button
-                    key={genre}
-                    className={
-                      activeGenre === genre
-                        ? "genre-chip selected"
-                        : "genre-chip"
-                    }
-                    onClick={() => openGenre(genre)}
-                  >
-                    {genre}
-                  </button>
-                ))}
-              </div>
-            </section>
-
-            <section className="book-section">
-              <div className="section-heading">
-                <div>
-                  <span className="eyebrow">PICK UP WHERE YOU LEFT OFF</span>
-                  <h2>
-                    {activeGenre === "All"
-                      ? "Ongoing stories"
-                      : `${activeGenre} stories`}
-                  </h2>
-                </div>
-
-                <button
-                  className="text-button"
-                  onClick={() => setActiveGenre("All")}
-                >
-                  View all →
-                </button>
-              </div>
-
-              <div className="book-grid">
-                {ongoingBooks.map((book) => (
-                  <BookCard
-                    key={book.id}
-                    book={book}
-                    onClick={() => setSelectedBook(book)}
-                  />
-                ))}
-              </div>
-
-              {ongoingBooks.length === 0 && (
-                <p className="empty-message">
-                  No ongoing stories found. Try another genre.
-                </p>
-              )}
-            </section>
-
-            <section className="book-section">
-              <div className="section-heading">
-                <div>
-                  <span className="eyebrow">THE STORY IS COMPLETE</span>
-                  <h2>Completed stories</h2>
-                </div>
-              </div>
-
-              <div className="book-grid">
-                {completedBooks.map((book) => (
-                  <BookCard
-                    key={book.id}
-                    book={book}
-                    onClick={() => setSelectedBook(book)}
-                  />
-                ))}
-              </div>
-
-              {completedBooks.length === 0 && (
-                <p className="empty-message">
-                  No completed stories found.
-                </p>
-              )}
-            </section>
-          </>
-        )}
-
-        {activePage === "Home" && selectedBook && (
-          <section className="book-details">
-            <button
-              className="back-button"
-              onClick={() => setSelectedBook(null)}
-            >
-              ← Back to stories
-            </button>
-
-            <div className="details-layout">
-              <div
-                className={`detail-cover ${selectedBook.color}`}
-              >
-                <span className="cover-decoration">
-                  {selectedBook.cover}
-                </span>
-                <span className="cover-brand">FICTIONAL WORLD</span>
-              </div>
-
-              <div className="details-info">
-                <span className="eyebrow">{selectedBook.genre}</span>
-                <h1>{selectedBook.title}</h1>
-                <p className="detail-author">
-                  By {selectedBook.author}
-                </p>
-
-                <div className="detail-tags">
-                  <span>{selectedBook.status}</span>
-                  <span>{selectedBook.length} story</span>
-                  <span>{selectedBook.chapters} chapters</span>
-                </div>
-
-                <h3>About this story</h3>
-                <p className="detail-description">
-                  {selectedBook.description}
-                </p>
-
-                <button
-                  className="primary-button"
-                  onClick={() =>
-                    alert(
-                      "The chapter reader will be connected to Supabase in Part 2."
-                    )
-                  }
-                >
-                  Start Reading →
-                </button>
-
-                <button
-                  className="secondary-button"
-                  onClick={() =>
-                    alert(
-                      "Your personal library will be connected in Part 2."
-                    )
-                  }
-                >
-                  + Add to Library
-                </button>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {activePage !== "Home" && (
-          <section className="placeholder-page">
-            <span className="placeholder-icon">
-              {activePage === "Library" && "▤"}
-              {activePage === "Notifications" && "♧"}
-              {activePage === "Profile" && "◉"}
-              {activePage === "Wallet" && "◇"}
-              {activePage === "Customer Service" && "✉"}
-              {activePage === "Settings" && "⚙"}
-            </span>
-
-            <span className="eyebrow">FICTIONAL WORLD LIBRARY</span>
-            <h1>{activePage}</h1>
-
+  function renderHome() {
+    return (
+      <>
+        <section className="hero">
+          <div className="hero-content">
+            <span className="eyebrow">YOUR NEXT OBSESSION STARTS HERE</span>
+            <h1>Enter a World Beyond Imagination.</h1>
             <p>
-              This section will be connected to your Supabase
-              database in the next parts.
+              Discover unforgettable stories, dangerous secrets, forbidden
+              love, and characters you'll never forget.
             </p>
 
             <button
               className="primary-button"
-              onClick={() => changePage("Home")}
+              onClick={() =>
+                document
+                  .getElementById("discover-books")
+                  ?.scrollIntoView({ behavior: "smooth" })
+              }
             >
-              Return Home →
+              <BookOpen size={18} /> Discover Stories
             </button>
-          </section>
-        )}
-      </main>
+          </div>
+        </section>
 
-      <footer className="footer">
-        <div className="footer-brand">
-          <img src="/logo.png" alt="" />
-          <div>
-            <strong>FICTIONAL WORLD</strong>
-            <span>All Readers · All Genres · Endless Stories</span>
+        <section className="content-section" id="discover-books">
+          <div className="section-heading">
+            <div>
+              <span className="eyebrow">FIND YOUR NEXT READ</span>
+              <h2>Discover</h2>
+            </div>
+          </div>
+
+          <div className="search-box">
+            <Search size={19} />
+            <input
+              type="search"
+              placeholder="Search books, authors, genres..."
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+            {search && (
+              <button onClick={() => setSearch("")} aria-label="Clear search">
+                <X size={17} />
+              </button>
+            )}
+          </div>
+
+          <div className="genre-list">
+            {genres.map((genre) => (
+              <button
+                key={genre}
+                className={`genre-chip ${
+                  selectedGenre === genre ? "selected" : ""
+                }`}
+                onClick={() => setSelectedGenre(genre)}
+              >
+                {genre}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {loadingBooks && (
+          <p className="loading-message">Loading stories...</p>
+        )}
+
+        {renderBookSection("Trending Stories", filteredBooks)}
+
+        {renderBookSection("Ongoing Stories", ongoingBooks)}
+
+        {renderBookSection("Completed Stories", completedBooks)}
+      </>
+    );
+                }  function renderBookDetails() {
+    if (!selectedBook) return null;
+
+    return (
+      <main className="page-content detail-page">
+        <button
+          className="back-button"
+          onClick={() => setSelectedBook(null)}
+        >
+          <ChevronLeft size={19} /> Back to Discover
+        </button>
+
+        <div className="book-detail">
+          <img
+            className="detail-cover"
+            src={selectedBook.cover}
+            alt={selectedBook.title}
+            onError={(event) => {
+              event.currentTarget.src = "/logo.png";
+            }}
+          />
+
+          <div className="detail-info">
+            <span className="eyebrow">{selectedBook.genre}</span>
+            <h1>{selectedBook.title}</h1>
+            <p className="book-author">By {selectedBook.author}</p>
+
+            <div className="detail-tags">
+              <span>{selectedBook.status}</span>
+              <span>{selectedBook.length} Story</span>
+              <span>{selectedBook.chapters} Chapters</span>
+            </div>
+
+            <h3>Synopsis</h3>
+            <p className="synopsis">{selectedBook.synopsis}</p>
+
+            <button
+              className="primary-button"
+              onClick={() =>
+                showNotice(
+                  "Chapter reading will be available when chapters are connected."
+                )
+              }
+            >
+              <BookOpen size={18} /> Start Reading
+            </button>
+
+            <button
+              className="secondary-button"
+              onClick={() => addToLibrary(selectedBook)}
+            >
+              <Plus size={18} /> Add to Library
+            </button>
           </div>
         </div>
+      </main>
+    );
+  }
 
+  function renderLibrary() {
+    return (
+      <main className="page-content">
+        <div className="page-heading">
+          <span className="eyebrow">YOUR PERSONAL COLLECTION</span>
+          <h1>My Library</h1>
+          <p>Keep your favourite stories close.</p>
+        </div>
+
+        {renderBookGrid(savedBooks)}
+      </main>
+    );
+  }
+
+  function renderNotifications() {
+    return (
+      <main className="page-content">
+        <div className="page-heading">
+          <span className="eyebrow">STAY IN THE LOOP</span>
+          <h1>Notifications</h1>
+        </div>
+
+        <div className="empty-state">
+          <Bell size={35} />
+          <h3>You're all caught up</h3>
+          <p>New chapter alerts and updates will appear here.</p>
+        </div>
+      </main>
+    );
+  }
+
+  function renderProfile() {
+    return (
+      <main className="page-content">
+        <div className="page-heading">
+          <span className="eyebrow">YOUR ACCOUNT</span>
+          <h1>My Profile</h1>
+        </div>
+
+        <div className="placeholder-card">
+          <div className="profile-avatar">
+            <User size={35} />
+          </div>
+          <h2>Welcome to Fictional World</h2>
+          <p>
+            Sign-in and account management will be connected in the next
+            development stage.
+          </p>
+          <button
+            className="primary-button"
+            onClick={() =>
+              showNotice("Account registration is not connected yet.")
+            }
+          >
+            <LogIn size={18} /> Login / Sign Up
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  function renderUtilityPage(page) {
+    const descriptions = {
+      Wallet:
+        "Your coin balance, top-ups, transactions, chapter unlocks, and subscriptions will appear here.",
+      "Customer Service":
+        "Need help? Contact fictionalworldlibary@gmail.com for assistance.",
+      Settings:
+        "Manage your preferences, appearance, account, and reading experience.",
+      "About Us":
+        "Fictional World Library brings readers and unforgettable stories together.",
+      "Be our Author":
+        "Ready to share your story? Prepare your manuscript and contact fictionalworldlibary@gmail.com to enquire about author submissions.",
+      "Terms & Conditions":
+        "Our terms will explain reader accounts, purchases, subscriptions, and content guidelines.",
+    };
+
+    return (
+      <main className="page-content">
+        <div className="page-heading">
+          <span className="eyebrow">FICTIONAL WORLD LIBRARY</span>
+          <h1>{page}</h1>
+        </div>
+
+        <div className="placeholder-card">
+          {page === "Wallet" ? (
+            <Wallet size={35} />
+          ) : page === "Settings" ? (
+            <Settings size={35} />
+          ) : (
+            <BookOpen size={35} />
+          )}
+
+          <p>{descriptions[page] || "This section is coming soon."}</p>
+
+          {page === "Settings" && (
+            <button
+              className="secondary-button"
+              onClick={() => setDarkMode((previous) => !previous)}
+            >
+              {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+              Switch to {darkMode ? "Light" : "Dark"} Mode
+            </button>
+          )}
+
+          {page === "Wallet" && (
+            <button
+              className="primary-button"
+              onClick={() =>
+                showNotice("Payments will be connected after checkout setup.")
+              }
+            >
+              <Plus size={18} /> Top Up Coins
+            </button>
+          )}
+
+          {page === "Customer Service" && (
+            <a
+              className="primary-button"
+              href="mailto:fictionalworldlibary@gmail.com"
+            >
+              <Headphones size={18} /> Contact Support
+            </a>
+          )}
+
+          {page === "Be our Author" && (
+            <a
+              className="primary-button"
+              href="mailto:fictionalworldlibary@gmail.com?subject=Author%20Application"
+            >
+              Contact Us About Publishing
+            </a>
+          )}
+        </div>
+      </main>
+    );
+  }  function renderCurrentPage() {
+    if (selectedBook) return renderBookDetails();
+
+    switch (activePage) {
+      case "Home":
+        return renderHome();
+
+      case "Library":
+        return renderLibrary();
+
+      case "Notifications":
+        return renderNotifications();
+
+      case "Profile":
+        return renderProfile();
+
+      default:
+        return renderUtilityPage(activePage);
+    }
+  }
+
+  return (
+    <div className={`app ${darkMode ? "dark-mode" : "light-mode"}`}>
+      <header className="app-header">
+        <button
+          className="brand"
+          onClick={() => openPage("Home")}
+          aria-label="Fictional World Library homepage"
+        >
+          <img src="/logo.png" alt="Fictional World Library" />
+          <span>
+            Fictional World
+            <small>LIBRARY</small>
+          </span>
+        </button>
+
+        <div className="header-actions">
+          <button
+            className="icon-button"
+            onClick={() => setDarkMode((previous) => !previous)}
+            aria-label="Toggle theme"
+          >
+            {darkMode ? <Sun size={19} /> : <Moon size={19} />}
+          </button>
+
+          <button
+            className="icon-button"
+            onClick={() => openPage("Profile")}
+            aria-label="Profile"
+          >
+            <User size={19} />
+          </button>
+        </div>
+      </header>
+
+      {renderCurrentPage()}
+
+      <footer className="app-footer">
+        <img src="/logo.png" alt="" />
+        <p>Stories that take you beyond imagination.</p>
         <p>© {new Date().getFullYear()} Fictional World Library</p>
       </footer>
 
       <nav className="bottom-nav">
         <NavButton
-          icon="⌂"
+          icon={Home}
           label="Home"
-          active={activePage === "Home"}
-          onClick={() => changePage("Home")}
+          active={activePage === "Home" && !selectedBook}
+          onClick={() => openPage("Home")}
         />
 
         <NavButton
-          icon="▤"
+          icon={Library}
           label="Library"
           active={activePage === "Library"}
-          onClick={() => changePage("Library")}
+          onClick={() => openPage("Library")}
         />
 
         <button
-          className={
-            menuOpen ? "nav-button menu-active" : "nav-button"
-          }
-          onClick={() => setMenuOpen(!menuOpen)}
+          className={`nav-button more-button ${menuOpen ? "active" : ""}`}
+          onClick={() => setMenuOpen((previous) => !previous)}
+          aria-label="More options"
         >
-          <span className="nav-icon">•••</span>
+          {menuOpen ? <X size={22} /> : <Menu size={22} />}
           <span>More</span>
         </button>
 
         <NavButton
-          icon="♧"
-          label="Notifications"
+          icon={Bell}
+          label="Alerts"
           active={activePage === "Notifications"}
-          onClick={() => changePage("Notifications")}
+          onClick={() => openPage("Notifications")}
         />
 
         <NavButton
-          icon="◉"
+          icon={User}
           label="Profile"
           active={activePage === "Profile"}
-          onClick={() => changePage("Profile")}
+          onClick={() => openPage("Profile")}
         />
       </nav>
 
       {menuOpen && (
         <div className="menu-popup">
-          <button onClick={() => changePage("Wallet")}>
-            ◇ <span>Wallet</span>
+          <button onClick={() => openPage("Wallet")}>
+            <Wallet size={19} /> Wallet
           </button>
-          <button onClick={() => changePage("Customer Service")}>
-            ✉ <span>Customer Service</span>
+
+          <button onClick={() => openPage("Customer Service")}>
+            <Headphones size={19} /> Customer Service
           </button>
-          <button onClick={() => changePage("Settings")}>
-            ⚙ <span>Settings</span>
+
+          <button onClick={() => openPage("Be our Author")}>
+            <BookOpen size={19} /> Be our Author
+          </button>
+
+          <button onClick={() => openPage("Settings")}>
+            <Settings size={19} /> Settings
+          </button>
+
+          <button onClick={() => openPage("About Us")}>
+            <Clock size={19} /> About Us
+          </button>
+
+          <button onClick={() => openPage("Terms & Conditions")}>
+            <CheckCircle size={19} /> Terms & Conditions
           </button>
         </div>
       )}
+
+      {notice && <div className="toast-message">{notice}</div>}
     </div>
   );
 }
-
-function BookCard({ book, onClick }) {
-  return (
-    <button className="book-card" onClick={onClick}>
-      <div className={`book-cover ${book.color}`}>
-        <span className="cover-decoration">{book.cover}</span>
-        <span className="cover-brand">FICTIONAL WORLD</span>
-
-        <span className="cover-status">
-          {book.status === "Completed" ? "COMPLETE" : "ONGOING"}
-        </span>
-      </div>
-
-      <div className="book-card-info">
-        <span className="book-genre">{book.genre}</span>
-        <h3>{book.title}</h3>
-        <p>{book.author}</p>
-
-        <div className="book-card-bottom">
-          <span>{book.chapters} chapters</span>
-          <span>Read →</span>
-        </div>
-      </div>
-    </button>
-  );
-}
-
-function NavButton({ icon, label, active, onClick }) {
-  return (
-    <button
-      className={active ? "nav-button active" : "nav-button"}
-      onClick={onClick}
-    >
-      <span className="nav-icon">{icon}</span>
-      <span>{label}</span>
-    </button>
-  );
-}
-
-export default App;
